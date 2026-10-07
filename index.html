@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 66 - Unfair Fairies</title>
+  <style>
+    :root {
+      --bg-1: #08131f;
+      --bg-2: #0e2438;
+      --panel: rgba(12, 22, 35, 0.82);
+      --panel-2: rgba(19, 33, 48, 0.9);
+      --gold: #f4d66d;
+      --cyan: #78d9ff;
+      --green: #69f8a7;
+      --red: #ff6e7d;
+      --violet: #b99cff;
+      --text: #ebf4ff;
+      --muted: #a2bbd1;
+      --shadow: rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #game-shell {
+      width: 96vw;
+      max-width: 1420px;
+      height: 92vh;
+      min-height: 760px;
+      background: rgba(5, 14, 22, 0.92);
+      border: 2px solid rgba(120, 217, 255, 0.6);
+      box-shadow: 0 0 30px rgba(120, 217, 255, 0.18);
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border-right: 1px solid rgba(255,255,255,0.08);
+      padding: 16px 14px;
+      overflow: auto;
+    }
+
+    .panel.right {
+      border-right: none;
+      border-left: 1px solid rgba(255,255,255,0.08);
+    }
+
+    h1, h2, h3 {
+      letter-spacing: 0.5px;
+    }
+
+    .brand {
+      text-align: center;
+      padding: 12px 10px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      margin-bottom: 14px;
+    }
+
+    .brand h1 {
+      font-size: 1.1rem;
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(244,214,109,0.35);
+    }
+
+    .brand p {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .stats-box, .quest-box, .inventory-box, .story-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 12px 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 8px 0;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+
+    .label {
+      color: var(--muted);
+    }
+
+    .bar {
+      position: relative;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .bar-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      height: 100%;
+      border-radius: 999px;
+      width: 50%;
+      transition: width 0.2s ease;
+    }
+
+    .hp { background: linear-gradient(90deg, #ff5f7d, #ff8f94); }
+    .mp { background: linear-gradient(90deg, #4db3ff, #7de5ff); }
+    .xp { background: linear-gradient(90deg, #a68dff, #d5b8ff); }
+
+    .list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .list li {
+      margin: 8px 0;
+      color: var(--text);
+      line-height: 1.35;
+      font-size: 0.82rem;
+    }
+
+    .list li strong {
+      color: var(--cyan);
+    }
+
+    .inventory-box .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 8px 8px;
+      margin-top: 8px;
+      font-size: 0.8rem;
+    }
+
+    .story-box {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.6;
+      overflow: auto;
+      max-height: 390px;
+    }
+
+    .story-box h3 {
+      color: var(--gold);
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .center-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, rgba(10,18,27,0.9), rgba(7,13,20,0.98));
+    }
+
+    .topbar {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(11, 22, 34, 0.75);
+    }
+
+    .title-wrap h2 {
+      font-size: 1.1rem;
+      color: var(--gold);
+    }
+
+    .title-wrap small {
+      color: var(--muted);
+    }
+
+    .mission {
+      color: var(--green);
+      font-weight: bold;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .game-area {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background: linear-gradient(180deg, #1a2d3d, #08131d);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+
+    .hud-overlay {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: none;
+    }
+
+    .log-box {
+      background: rgba(7, 18, 25, 0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+      max-width: 52%;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.22);
+    }
+
+    .log-box .mini {
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .log-box .message {
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .controls {
+      background: rgba(7, 18, 25, 0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.5;
+      text-align: right;
+    }
+
+    .dialogue {
+      position: absolute;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%);
+      width: min(720px, 78%);
+      background: rgba(6, 16, 22, 0.9);
+      border: 1px solid rgba(120, 217, 255, 0.5);
+      border-radius: 14px;
+      box-shadow: 0 16px 28px rgba(0,0,0,0.33);
+      display: none;
+      z-index: 30;
+    }
+
+    .dialogue.visible {
+      display: block;
+    }
+
+    .dialogue-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+
+    .dialogue-body {
+      padding: 14px 16px 12px;
+      color: var(--text);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      min-height: 100px;
+    }
+
+    .dialogue-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 0 12px 12px;
+    }
+
+    button {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(120,217,255,0.13), rgba(120,217,255,0.04));
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    .primary {
+      background: linear-gradient(180deg, rgba(105,248,167,0.2), rgba(105,248,167,0.08));
+      border-color: rgba(105,248,167,0.4);
+    }
+
+    .warning {
+      background: linear-gradient(180deg, rgba(255,110,125,0.2), rgba(255,110,125,0.08));
+      border-color: rgba(255,110,125,0.4);
+    }
+
+    @media (max-width: 1120px) {
+      #game-shell {
+        grid-template-columns: 240px 1fr 240px;
+      }
+    }
+
+    @media (max-width: 920px) {
+      #game-shell {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .center-panel {
+        min-height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-shell">
+    <aside class="panel left">
+      <div class="brand">
+        <h1>Chapter 66</h1>
+        <p>Unfair Fairies</p>
+      </div>
+
+      <div class="stats-box">
+        <h3>Player Character</h3>
+        <div class="stat-row"><span class="label">Name</span><span id="playerName">Aster</span></div>
+        <div class="stat-row"><span class="label">Class</span><span id="playerClass">Humble Fairy</span></div>
+        <div class="stat-row"><span class="label">Level</span><span id="playerLevel">1</span></div>
+        <div class="stat-row"><span class="label">Gold</span><span id="playerGold">0</span></div>
+
+        <div class="stat-row"><span class="label">HP</span><span id="hpText">100 / 100</span></div>
+        <div class="bar"><div class="bar-fill hp" id="hpBar"></div></div>
+
+        <div class="stat-row"><span class="label">MP</span><span id="mpText">60 / 60</span></div>
+        <div class="bar"><div class="bar-fill mp" id="mpBar"></div></div>
+
+        <div class="stat-row"><span class="label">EXP</span><span id="xpText">0 / 100</span></div>
+        <div class="bar"><div class="bar-fill xp" id="xpBar"></div></div>
+      </div>
+
+      <div class="quest-box">
+        <h3>Quest Log</h3>
+        <ul class="list" id="questList">
+          <li><strong>1.</strong> Talk to Elder Fairy</li>
+        </ul>
+      </div>
+
+      <div class="inventory-box">
+        <h3>Inventory</h3>
+        <div id="inventoryList"></div>
+      </div>
+    </aside>
+
+    <main class="center-panel">
+      <div class="topbar">
+        <div class="title-wrap">
+          <h2>Chapter 66 - Unfair Fairies</h2>
+          <small>Heavenly Castle • Moonlit Meadow</small>
+        </div>
+        <div class="mission" id="missionText">Mission: Restore fairness</div>
+      </div>
+
+      <div class="game-area">
+        <canvas id="gameCanvas" width="980" height="680"></canvas>
+
+        <div class="hud-overlay">
+          <div class="log-box">
+            <div class="mini">World Log</div>
+            <div class="message" id="worldMessage">A humble fairy enters the castle garden...</div>
+          </div>
+
+          <div class="controls">
+            Move: WASD / Arrows<br>
+            Talk: E<br>
+            Attack: Space
+          </div>
+        </div>
+
+        <div class="dialogue" id="dialogueBox">
+          <div class="dialogue-header">
+            <span id="dialogueName">NPC</span>
+            <span id="dialogueClose">[E]</span>
+          </div>
+          <div class="dialogue-body" id="dialogueText"></div>
+          <div class="dialogue-actions">
+            <button class="primary" id="dialogueAction">Continue</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="panel right">
+      <div class="story-box">
+        <h3>Story</h3>
+        <p>
+          Once upon a time in the heavenly castle of the fairies, there lived a proud group of fairies who
+          mocked a humble fairy because he had no wings. They bullied him and called him weak. But the
+          Enchanted Mother of the Fairies saw their unfairness and cursed them, stripping away their pride
+          and testing their nature.
+        </p>
+        <br />
+        <p>
+          The humble fairy remained gentle and fair, while the prideful fairies became jealous and spiteful.
+          When a poor man named Gikag cried out for help, the proud fairies failed to grant his wish because
+          they were selfish and unfair. Yet the humble fairy answered with compassion and true magic.
+        </p>
+        <br />
+        <p>
+          Moral lesson: when we are different, we must remain humble, fair, and honest. Jealousy and greed
+          only lead to pain. A true heart is stronger than wings.
+        </p>
+        <br />
+        <p>
+          The fairies who were filled with envy were punished, but the humble fairy was rewarded because he
+          chose fairness over pride. In the end, hope and kindness win over envy and unfairness.
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const world = {
+      width: 1600,
+      height: 980
+    };
+
+    const ui = {
+      playerName: document.getElementById("playerName"),
+      playerClass: document.getElementById("playerClass"),
+      playerLevel: document.getElementById("playerLevel"),
+      playerGold: document.getElementById("playerGold"),
+      hpText: document.getElementById("hpText"),
+      mpText: document.getElementById("mpText"),
+      xpText: document.getElementById("xpText"),
+      hpBar: document.getElementById("hpBar"),
+      mpBar: document.getElementById("mpBar"),
+      xpBar: document.getElementById("xpBar"),
+      questList: document.getElementById("questList"),
+      inventoryList: document.getElementById("inventoryList"),
+      missionText: document.getElementById("missionText"),
+      worldMessage: document.getElementById("worldMessage"),
+      dialogueBox: document.getElementById("dialogueBox"),
+      dialogueName: document.getElementById("dialogueName"),
+      dialogueText: document.getElementById("dialogueText"),
+      dialogueAction: document.getElementById("dialogueAction"),
+      dialogueClose: document.getElementById("dialogueClose")
+    };
+
+    const keys = {};
+    const obstacles = [
+      { x: 0, y: 0, w: world.width, h: 70 },
+      { x: 0, y: 0, w: 80, h: world.height },
+      { x: 0, y: world.height - 90, w: world.width, h: 90 },
+      { x: world.width - 90, y: 0, w: 90, h: world.height },
+      { x: 260, y: 170, w: 180, h: 80 },
+      { x: 520, y: 270, w: 150, h: 90 },
+      { x: 900, y: 180, w: 200, h: 120 },
+      { x: 700, y: 560, w: 210, h: 120 },
+      { x: 1200, y: 430, w: 150, h: 130 },
+      { x: 350, y: 650, w: 170, h: 120 }
+    ];
+
+    const pickups = [
+      { id: "petal1", x: 200, y: 160, type: "petal", label: "Moon Petal", collected: false },
+      { id: "petal2", x: 730, y: 260, type: "petal", label: "Moon Petal", collected: false },
+      { id: "petal3", x: 1120, y: 180, type: "petal", label: "Moon Petal", collected: false },
+      { id: "potion1", x: 450, y: 500, type: "potion", label: "Healing Potion", collected: false }
+    ];
+
+    let player = {
+      x: 160,
+      y: 850,
+      w: 26,
+      h: 26,
+      speed: 2.7,
+      hp: 100,
+      maxHp: 100,
+      mp: 60,
+      maxMp: 60,
+      level: 1,
+      attack: 12,
+      exp: 0,
+      nextExp: 100,
+      gold: 0,
+      name: "Aster",
+      className: "Humble Fairy",
+      inventory: []
+    };
+
+    const npcData = [
+      {
+        id: "elder",
+        name: "Elder Fairy",
+        x: 860,
+        y: 120,
+        color: "#6fe3ff",
+        radius: 18,
+        dialogue: [
+          "The Proud Fairies have fallen into envy. Only the fair and humble can restore balance.",
+          "Travel the meadow and defeat the Shadow Fairies. Bring back three Moon Petals to seal the curse."
+        ]
+      },
+      {
+        id: "shop",
+        name: "Moth Merchant",
+        x: 290,
+        y: 300,
+        color: "#f2d78a",
+        radius: 16,
+        dialogue: [
+          "I sell courage and moonwater. Carry a potion if you expect difficult battles.",
+          "You may need more than wings to survive this night."
+        ]
+      },
+      {
+        id: "gatekeeper",
+        name: "Gatekeeper",
+        x: 1360,
+        y: 760,
+        color: "#d4b7ff",
+        radius: 18,
+        dialogue: [
+          "The gate opens only to those who prove fairness.",
+          "Return with the Moon Petals and the truth of your heart."
+        ]
+      }
+    ];
+
+    const enemies = [
+      { id: "shadow1", name: "Shadow Fairy", x: 610, y: 470, hp: 32, maxHp: 32, attack: 9, radius: 18, alive: true },
+      { id: "shadow2", name: "Shadow Fairy", x: 1110, y: 580, hp: 36, maxHp: 36, attack: 10, radius: 18, alive: true },
+      { id: "shadow3", name: "Shadow Fairy", x: 980, y: 250, hp: 40, maxHp: 40, attack: 11, radius: 18, alive: true },
+      { id: "boss", name: "Proud Fairy Warden", x: 1340, y: 430, hp: 80, maxHp: 80, attack: 18, radius: 25, alive: true }
+    ];
+
+    let state = {
+      dialogue: null,
+      talkCooldown: 0,
+      lastMessage: "A humble fairy enters the castle garden...",
+      questStage: 0,
+      questCompleted: false,
+      petalsCollected: 0,
+      portalUnlocked: false,
+      inCombat: false
+    };
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function rectsOverlap(a, b) {
+      return a.x < b.x + b.w &&
+             a.x + a.w > b.x &&
+             a.y < b.y + b.h &&
+             a.y + a.h > b.y;
+    }
+
+    function isCollidingWithWalls(nextX, nextY, width = player.w, height = player.h) {
+      const box = { x: nextX, y: nextY, w: width, h: height };
+      return obstacles.some(wall => rectsOverlap(box, wall));
+    }
+
+    function updateHud() {
+      ui.playerName.textContent = player.name;
+      ui.playerClass.textContent = player.className;
+      ui.playerLevel.textContent = String(player.level);
+      ui.playerGold.textContent = String(player.gold);
+
+      const hpPct = (player.hp / player.maxHp) * 100;
+      const mpPct = (player.mp / player.maxMp) * 100;
+      const xpPct = (player.exp / player.nextExp) * 100;
+
+      ui.hpText.textContent = `${Math.max(0, Math.ceil(player.hp))} / ${player.maxHp}`;
+      ui.mpText.textContent = `${Math.max(0, Math.ceil(player.mp))} / ${player.maxMp}`;
+      ui.xpText.textContent = `${Math.max(0, Math.ceil(player.exp))} / ${player.nextExp}`;
+
+      ui.hpBar.style.width = `${clamp(hpPct, 0, 100)}%`;
+      ui.mpBar.style.width = `${clamp(mpPct, 0, 100)}%`;
+      ui.xpBar.style.width = `${clamp(xpPct, 0, 100)}%`;
+
+      const questItems = [
+        "Talk to Elder Fairy",
+        "Defeat the Shadow Fairies",
+        "Collect 3 Moon Petals",
+        "Reach the Final Gate"
+      ];
+
+      let currentQuest = questItems[state.questStage] || "Quest Complete";
+      const questHtml = [];
+      for (let i = 0; i < questItems.length; i++) {
+        const done = i < state.questStage || (state.questCompleted && i === questItems.length - 1);
+        const text = done ? "✓ " + questItems[i] : i === state.questStage ? "▶ " + questItems[i] : questItems[i];
+        questHtml.push(`<li>${text}</li>`);
+      }
+      ui.questList.innerHTML = questHtml.join("");
+
+      if (state.questStage === 0) {
+        ui.missionText.textContent = "Mission: Speak to Elder Fairy";
+      } else if (state.questStage === 1) {
+        ui.missionText.textContent = "Mission: Defeat the Shadow Fairies";
+      } else if (state.questStage === 2) {
+        ui.missionText.textContent = "Mission: Gather Moon Petals";
+      } else if (state.questStage === 3) {
+        ui.missionText.textContent = "Mission: Reach the Final Gate";
+      } else if (state.questCompleted) {
+        ui.missionText.textContent = "Mission Complete: Fairness restored";
+      }
+
+      ui.worldMessage.textContent = state.lastMessage;
+
+      renderInventory();
+    }
+
+    function renderInventory() {
+      if (player.inventory.length === 0) {
+        ui.inventoryList.innerHTML = "<div class='item'><span>Empty</span></div>";
+        return;
+      }
+
+      ui.inventoryList.innerHTML = player.inventory.map(item => `
+        <div class="item">
+          <span>${item}</span>
+          <span>✦</span>
+        </div>
+      `).join("");
+    }
+
+    function showDialogue(npc) {
+      state.dialogue = npc;
+      ui.dialogueName.textContent = npc.name;
+      ui.dialogueText.textContent = npc.dialogue[0] || "The fairy speaks softly.";
+      ui.dialogueBox.classList.add("visible");
+      ui.dialogueAction.textContent = "Next";
+    }
+
+    function closeDialogue() {
+      state.dialogue = null;
+      ui.dialogueBox.classList.remove("visible");
+    }
+
+    function advanceDialogue() {
+      if (!state.dialogue) return;
+
+      const npc = state.dialogue;
+      const dialogue = npc.dialogue || [];
+      const index = npc._dialogueIndex || 0;
+
+      npc._dialogueIndex = index + 1;
+      if (npc._dialogueIndex < dialogue.length) {
+        ui.dialogueText.textContent = dialogue[npc._dialogueIndex];
+      } else {
+        handleDialogEnd(npc);
+      }
+    }
+
+    function handleDialogEnd(npc) {
+      if (npc.id === "elder") {
+        if (state.questStage === 0) {
+          state.questStage = 1;
+          state.lastMessage = "Elder Fairy: Defeat the shadow fairies and protect the meadow.";
+          player.inventory.push("Moon Charm");
+        }
+      } else if (npc.id === "shop") {
+        if (!player.inventory.includes("Healing Potion")) {
+          player.inventory.push("Healing Potion");
+          state.lastMessage = "Moth Merchant: A potion for the long journey.";
+        } else {
+          state.lastMessage = "Moth Merchant: Courage shines brightest in your heart.";
+        }
+      } else if (npc.id === "gatekeeper") {
+        if (state.petalsCollected >= 3 && state.questStage === 3) {
+          state.questCompleted = true;
+          state.lastMessage = "Gatekeeper: The gate opens. Fairness has returned.";
+          player.gold += 50;
+          player.exp += 50;
+          player.inventory.push("Crown of Fairness");
+        } else {
+          state.lastMessage = "Gatekeeper: Bring three Moon Petals before the gate can open.";
+        }
+      }
+
+      closeDialogue();
+      updateHud();
+    }
+
+    function maybeGivePotion() {
+      if (!player.inventory.includes("Healing Potion")) {
+        player.inventory.push("Healing Potion");
+      }
+    }
+
+    function handleKeyDown(e) {
+      keys[e.key.toLowerCase()] = true;
+
+      if (e.code === "Space") {
+        attackNearestEnemy();
+      }
+
+      if (e.key.toLowerCase() === "e") {
+        interact();
+      }
+    }
+
+    function handleKeyUp(e) {
+      keys[e.key.toLowerCase()] = false;
+    }
+
+    function interact() {
+      const nearbyNpc = getNearestNpc();
+      if (nearbyNpc) {
+        showDialogue(nearbyNpc);
+        return;
+      }
+
+      const nearbyPickup = getNearestPickup();
+      if (nearbyPickup) {
+        collectPickup(nearbyPickup);
+        return;
+      }
+
+      const nearbyEnemy = getNearestEnemy();
+      if (nearbyEnemy && !nearbyEnemy.alive) return;
+
+      if (nearbyEnemy && distance(player, nearbyEnemy) < 42) {
+        attackNearestEnemy();
+      }
+    }
+
+    function distance(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function getNearestNpc() {
+      let nearest = null;
+      let bestDist = Infinity;
+
+      npcData.forEach(npc => {
+        const d = distance(player, npc);
+        if (d < 60 && d < bestDist) {
+          bestDist = d;
+          nearest = npc;
+        }
+      });
+
+      return nearest;
+    }
+
+    function getNearestPickup() {
+      let nearest = null;
+      let bestDist = Infinity;
+
+      pickups.forEach(item => {
+        if (item.collected) return;
+        const d = distance(player, item);
+        if (d < 38 && d < bestDist) {
+          nearest = item;
+          bestDist = d;
+        }
+      });
+
+      return nearest;
+    }
+
+    function collectPickup(item) {
+      item.collected = true;
+      if (item.type === "petal") {
+        state.petalsCollected += 1;
+        player.inventory.push("Moon Petal");
+        state.lastMessage = `You found a Moon Petal (${state.petalsCollected}/3).`;
+        if (state.questStage === 1) state.questStage = 2;
+        if (state.petalsCollected >= 3 && state.questStage === 2) {
+          state.questStage = 3;
+          state.lastMessage = "All Moon Petals recovered. Head to the Final Gate.";
+        }
+      } else if (item.type === "potion") {
+        maybeGivePotion();
+        state.lastMessage = "Healing Potion collected. Use it when needed.";
+      }
+
+      updateHud();
+    }
+
+    function getNearestEnemy() {
+      let nearest = null;
+      let bestDist = Infinity;
+
+      enemies.forEach(enemy => {
+        if (!enemy.alive) return;
+        const d = distance(player, enemy);
+        if (d < 130 && d < bestDist) {
+          bestDist = d;
+          nearest = enemy;
+        }
+      });
+
+      return nearest;
+    }
+
+    function attackNearestEnemy() {
+      const enemy = getNearestEnemy();
+      if (!enemy) {
+        state.lastMessage = "No enemy nearby. The meadow is calm for now.";
+        updateHud();
+        return;
+      }
+
+      if (distance(player, enemy) > 62) {
+        state.lastMessage = "Enemy is too far. Move closer.";
+        updateHud();
+        return;
+      }
+
+      const damage = player.attack + Math.floor(Math.random() * 8);
+      enemy.hp -= damage;
+
+      state.lastMessage = `You strike ${enemy.name} for ${damage} damage.`;
+      if (enemy.hp <= 0) {
+        enemy.alive = false;
+        player.exp += 25;
+        player.gold += 12;
+        if (enemy.name.includes("Shadow")) {
+          state.lastMessage = `${enemy.name} was defeated. The meadow breathes again.`;
+        } else if (enemy.name.includes("Warden")) {
+          state.lastMessage = "The Proud Fairy Warden falls. Fairness triumphs.";
+          state.questStage = 3;
+        }
+
+        if (player.exp >= player.nextExp) {
+          player.level += 1;
+          player.exp -= player.nextExp;
+          player.nextExp = Math.floor(player.nextExp * 1.4);
+          player.maxHp += 15;
+          player.hp = player.maxHp;
+          player.maxMp += 8;
+          player.mp = player.maxMp;
+          player.attack += 4;
+          state.lastMessage = `Level Up! ${player.name} is now level ${player.level}.`;
+        }
+      } else {
+        enemyAttack(enemy);
+      }
+
+      updateHud();
+    }
+
+    function enemyAttack(enemy) {
+      const damage = enemy.attack + Math.floor(Math.random() * 7);
+      player.hp -= damage;
+      if (player.hp <= 0) {
+        player.hp = 0;
+        state.lastMessage = "You were defeated. The fairy falls, but hope remains.";
+        player.exp = 0;
+        player.hp = player.maxHp;
+        player.mp = player.maxMp;
+      } else {
+        state.lastMessage += ` ${enemy.name} hits back for ${damage}.`;
+      }
+    }
+
+    function updatePlayerMovement() {
+      let dx = 0;
+      let dy = 0;
+
+      if (keys["w"] || keys["arrowup"]) dy -= 1;
+      if (keys["s"] || keys["arrowdown"]) dy += 1;
+      if (keys["a"] || keys["arrowleft"]) dx -= 1;
+      if (keys["d"] || keys["arrowright"]) dx += 1;
+
+      const length = Math.hypot(dx, dy) || 1;
+      dx /= length;
+      dy /= length;
+
+      const nextX = player.x + dx * player.speed;
+      const nextY = player.y + dy * player.speed;
+
+      const testBox = {x: nextX, y: player.y, w: player.w, h: player.h};
+      if (!isCollidingWithWalls(nextX, player.y, player.w, player.h)) {
+        player.x = nextX;
+      }
+
+      const testBoxY = {x: player.x, y: nextY, w: player.w, h: player.h};
+      if (!isCollidingWithWalls(player.x, nextY, player.w, player.h)) {
+        player.y = nextY;
+      }
+
+      player.x = clamp(player.x, 70, world.width - 100);
+      player.y = clamp(player.y, 70, world.height - 120);
+    }
+
+    function drawBackground() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, "#0f2336");
+      grad.addColorStop(0.45, "#163447");
+      grad.addColorStop(1, "#0c1721");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#28485a";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // central path
+      ctx.fillStyle = "#cba66d";
+      ctx.fillRect(100, 100, canvas.width - 200, 80);
+      ctx.fillRect(100, 100, 80, canvas.height - 140);
+      ctx.fillRect(100, canvas.height - 170, canvas.width - 200, 70);
+      ctx.fillRect(canvas.width - 180, 100, 80, canvas.height - 140);
+
+      // decorative crystals
+      for (let i = 0; i < 12; i++) {
+        const x = 100 + i * 80;
+        const y = 90 + (i % 2) * 80;
+        ctx.fillStyle = "rgba(120,217,255,0.12)";
+        ctx.fillRect(x, y, 18, 100);
+      }
+
+      // map walls
+      obstacles.forEach(wall => {
+        const sx = wall.x / world.width * canvas.width;
+        const sy = wall.y / world.height * canvas.height;
+        const sw = wall.w / world.width * canvas.width;
+        const sh = wall.h / world.height * canvas.height;
+
+        ctx.fillStyle = "#1d3440";
+        ctx.fillRect(sx, sy, sw, sh);
+      });
+
+      // glowing stones
+      pickups.forEach(item => {
+        if (item.collected) return;
+
+        const sx = item.x / world.width * canvas.width;
+        const sy = item.y / world.height * canvas.height;
+
+        if (item.type === "petal") {
+          ctx.fillStyle = "#f3d678";
+          ctx.beginPath();
+          ctx.arc(sx, sy, 10, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = "#fff7ca";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(sx, sy, 16, 0, Math.PI * 2);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = "#7ce8b3";
+          ctx.beginPath();
+          ctx.arc(sx, sy, 9, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      enemies.forEach(enemy => {
+        if (!enemy.alive) return;
+        const sx = enemy.x / world.width * canvas.width;
+        const sy = enemy.y / world.height * canvas.height;
+
+        ctx.fillStyle = enemy.name.includes("Warden") ? "#c77cff" : "#ff6e7d";
+        ctx.beginPath();
+        ctx.arc(sx, sy, enemy.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(0,0,0,0.5)";
+        ctx.fillRect(sx - 20, sy - enemy.radius - 14, 40, 6);
+        ctx.fillStyle = "#6cf2a3";
+        ctx.fillRect(sx - 20, sy - enemy.radius - 14, (enemy.hp / enemy.maxHp) * 40, 6);
+
+        ctx.fillStyle = "#fff";
+        ctx.font = "10px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(enemy.name, sx, sy + enemy.radius + 18);
+      });
+
+      npcData.forEach(npc => {
+        const sx = npc.x / world.width * canvas.width;
+        const sy = npc.y / world.height * canvas.height;
+
+        ctx.fillStyle = npc.color;
+        ctx.beginPath();
+        ctx.arc(sx, sy, npc.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#fff";
+        ctx.font = "10px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(npc.name, sx, sy + npc.radius + 16);
+      });
+
+      const px = player.x / world.width * canvas.width;
+      const py = player.y / world.height * canvas.height;
+
+      ctx.fillStyle = "#78d9ff";
+      ctx.beginPath();
+      ctx.arc(px, py, 15, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#fff";
+      ctx.font = "10px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(player.name, px, py + 24);
+
+      // gate
+      const gateX = 1430 / world.width * canvas.width;
+      const gateY = 760 / world.height * canvas.height;
+      ctx.fillStyle = state.portalUnlocked ? "#7af6a8" : "#a7b7c9";
+      ctx.fillRect(gateX - 22, gateY - 40, 44, 80);
+      ctx.strokeStyle = "#f5f6f7";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(gateX - 22, gateY - 40, 44, 80);
+
+      if (state.petalsCollected >= 3) {
+        ctx.fillStyle = "#ffd66d";
+        ctx.fillRect(gateX - 8, gateY - 18, 16, 18);
+      }
+    }
+
+    function updateQuestProgress() {
+      const activeEnemies = enemies.filter(e => e.alive && e.name.includes("Shadow"));
+      if (state.questStage === 1 && activeEnemies.length === 0) {
+        state.questStage = 2;
+        state.lastMessage = "The shadow fairies have been defeated. Search for the Moon Petals.";
+      }
+
+      if (state.petalsCollected >= 3 && state.questStage === 2) {
+        state.questStage = 3;
+        state.lastMessage = "Moon Petals recovered. Go to the gate and prove your fairness.";
+      }
+
+      if (state.questStage === 3 && distance(player, { x: 1360, y: 760 }) < 70) {
+        const gatekeeper = npcData.find(n => n.id === "gatekeeper");
+        showDialogue(gatekeeper);
+      }
+
+      if (state.questCompleted) {
+        state.portalUnlocked = true;
+      }
+    }
+
+    function gameLoop() {
+      updatePlayerMovement();
+      updateQuestProgress();
+      drawBackground();
+      updateHud();
+
+      if (state.dialogue) {
+        ui.dialogueBox.classList.add("visible");
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    ui.dialogueAction.addEventListener("click", () => {
+      if (!state.dialogue) return;
+      advanceDialogue();
+    });
+
+    ui.dialogueClose.addEventListener("click", () => {
+      closeDialogue();
+    });
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keyup", handleKeyUp);
+
+    updateHud();
+    showDialogue(npcData[0]);
+    npcData[0]._dialogueIndex = 0;
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
